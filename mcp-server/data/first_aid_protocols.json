@@ -1,0 +1,180 @@
+{
+  "kb_version": "1.0",
+  "conditions": [
+    {
+      "condition_id": "choking_adult",
+      "title": "Choking (conscious adult or child)",
+      "aliases": ["choking", "airway obstruction", "someone is choking", "child choking"],
+      "steps": [
+        "Ask the person 'Are you choking?' If they can cough forcefully, encourage them to keep coughing.",
+        "If they cannot cough, speak, or breathe, stand behind them and give up to 5 back blows between the shoulder blades with the heel of your hand.",
+        "If back blows do not clear the obstruction, give up to 5 abdominal thrusts (Heimlich maneuver): stand behind the person, place a fist above the navel, grasp it with your other hand, and pull sharply inward and upward.",
+        "Alternate 5 back blows and 5 abdominal thrusts until the object is expelled or the person becomes unresponsive.",
+        "If the person becomes unresponsive, lower them to the ground, call emergency services immediately, and begin CPR."
+      ],
+      "warnings": [
+        "Do not perform abdominal thrusts on infants under 1 year old; use back blows and chest thrusts instead.",
+        "Do not perform abdominal thrusts on visibly pregnant or very obese individuals; use chest thrusts instead.",
+        "Call emergency services immediately if the obstruction does not clear."
+      ],
+      "source": {
+        "doc_id": "IFRC_FA_2025",
+        "reference": "IFRC International First Aid Guidelines 2025 — Airway obstruction / choking chapter"
+      }
+    },
+    {
+      "condition_id": "severe_bleeding",
+      "title": "Severe external bleeding",
+      "aliases": ["bleeding", "severe bleeding", "hemorrhage", "cut", "wound bleeding"],
+      "steps": [
+        "Call emergency services if bleeding is severe or does not stop.",
+        "Apply firm, direct pressure to the wound with a clean cloth or dressing.",
+        "If bleeding continues, add more dressings on top of the first without removing it, and increase pressure.",
+        "Elevate the injured limb above heart level if possible and if no fracture is suspected.",
+        "Once bleeding is controlled, secure the dressing firmly with a bandage without cutting off circulation.",
+        "If a limb wound continues to bleed severely despite direct pressure and a tourniquet is available and you are trained, apply it above the wound as a last resort."
+      ],
+      "warnings": [
+        "Do not remove an embedded object from a wound; pad and bandage around it instead.",
+        "Watch for signs of shock (pale skin, rapid breathing, weakness) and treat accordingly.",
+        "Use gloves or a barrier if available to reduce infection risk."
+      ],
+      "source": {
+        "doc_id": "ARC_RTE",
+        "reference": "American Red Cross Responding to Emergencies — Bleeding control chapter"
+      }
+    },
+    {
+      "condition_id": "burns",
+      "title": "Thermal burns",
+      "aliases": ["burn", "burns", "scald", "fire injury"],
+      "steps": [
+        "Remove the person from the source of the burn and stop the burning process.",
+        "Cool the burn under cool (not ice-cold) running water for at least 10-20 minutes.",
+        "Remove tight clothing and jewellery near the burn before swelling starts, unless stuck to the skin.",
+        "Cover the burn loosely with a sterile, non-fluffy dressing or clean cling film.",
+        "Treat for shock if needed and monitor breathing.",
+        "Seek emergency medical care for burns larger than the person's palm, burns on the face/hands/genitals, or full-thickness (third-degree) burns."
+      ],
+      "warnings": [
+        "Do not apply ice, butter, oil, or ointments to a burn.",
+        "Do not burst blisters.",
+        "Do not use adhesive dressings directly on a burn."
+      ],
+      "source": {
+        "doc_id": "SJA_REFERENCE",
+        "reference": "St John Ambulance First Aid Reference Guide — Burns and scalds chapter"
+      }
+    },
+    {
+      "condition_id": "cpr_adult",
+      "title": "CPR (adult, unresponsive and not breathing normally)",
+      "aliases": ["cpr", "cardiac arrest", "not breathing", "unresponsive not breathing"],
+      "steps": [
+        "Check for danger, then check responsiveness by tapping the shoulders and shouting.",
+        "If unresponsive, call emergency services (or direct someone else to) and ask for an AED if available.",
+        "Open the airway with a head-tilt, chin-lift and check for normal breathing for no more than 10 seconds.",
+        "If not breathing normally, begin chest compressions: push hard and fast in the center of the chest, at least 5 cm deep, at a rate of 100-120 compressions per minute.",
+        "Give 30 compressions followed by 2 rescue breaths if trained and willing; otherwise continue compression-only CPR.",
+        "Continue cycles of 30:2 until the person shows signs of life, an AED arrives, or emergency responders take over."
+      ],
+      "warnings": [
+        "Do not delay starting compressions to check for a pulse.",
+        "Use an AED as soon as it is available and follow its voice prompts.",
+        "Compression-only CPR is an acceptable alternative if you are untrained or unwilling to give rescue breaths."
+      ],
+      "source": {
+        "doc_id": "WHO_BEC_2018",
+        "reference": "WHO Basic Emergency Care 2018 — Basic life support / cardiac arrest chapter"
+      }
+    },
+    {
+      "condition_id": "fracture",
+      "title": "Suspected bone fracture",
+      "aliases": ["fracture", "broken bone", "suspected break"],
+      "steps": [
+        "Keep the injured area still and support it in the position found; do not try to realign the bone.",
+        "If there is bleeding, control it with direct pressure around (not on top of) the deformity.",
+        "Immobilize the limb using a splint or padding, supporting the joints above and below the injury.",
+        "Check circulation, sensation, and movement beyond the injury (fingers or toes) before and after splinting.",
+        "Apply a cold pack wrapped in cloth to reduce swelling if available.",
+        "Arrange transport to emergency care; avoid moving the person unnecessarily."
+      ],
+      "warnings": [
+        "Do not attempt to push a protruding bone back under the skin.",
+        "Do not give the person food or drink in case surgery is needed.",
+        "Seek immediate emergency care for an open fracture or loss of circulation beyond the injury."
+      ],
+      "source": {
+        "doc_id": "LRC_EMR_2021",
+        "reference": "LRC Emergency Medical Responder 2021 — Musculoskeletal injuries chapter"
+      }
+    },
+    {
+      "condition_id": "seizure",
+      "title": "Seizure / convulsion",
+      "aliases": ["seizure", "convulsion", "epileptic fit"],
+      "steps": [
+        "Stay with the person and time the seizure.",
+        "Clear the area of hard or sharp objects to prevent injury.",
+        "Place something soft under their head if possible.",
+        "Do not restrain the person or put anything in their mouth.",
+        "Once the seizure stops, place the person in the recovery position and check breathing.",
+        "Call emergency services if the seizure lasts longer than 5 minutes, repeats without recovery, or this is the person's first known seizure."
+      ],
+      "warnings": [
+        "Never put anything, including your fingers, in the person's mouth during a seizure.",
+        "Do not hold the person down.",
+        "Call emergency services immediately if the person is injured, has difficulty breathing afterward, or the seizure occurs in water."
+      ],
+      "source": {
+        "doc_id": "WHO_BEC_2018",
+        "reference": "WHO Basic Emergency Care 2018 — Neurological emergencies chapter"
+      }
+    },
+    {
+      "condition_id": "shock",
+      "title": "Shock (circulatory collapse)",
+      "aliases": ["shock", "signs of shock"],
+      "steps": [
+        "Call emergency services.",
+        "Lay the person down and, if there is no suspected spinal or leg injury, raise their legs slightly.",
+        "Keep the person warm with a blanket or coat, but avoid overheating.",
+        "Treat any obvious cause, such as controlling severe bleeding.",
+        "Do not give the person anything to eat or drink.",
+        "Monitor breathing and level of responsiveness continuously until help arrives."
+      ],
+      "warnings": [
+        "Signs include pale, cold, clammy skin, rapid weak pulse, rapid breathing, and confusion or weakness.",
+        "Do not raise the legs if a leg fracture, spinal injury, or head injury is suspected.",
+        "Shock can be life-threatening and worsens quickly; treat it as an emergency."
+      ],
+      "source": {
+        "doc_id": "LRC_EMT_2020",
+        "reference": "LRC Emergency Medical Technician 2020 — Shock and perfusion chapter"
+      }
+    },
+    {
+      "condition_id": "unconscious_recovery_position",
+      "title": "Unconscious but breathing normally (recovery position)",
+      "aliases": ["unconscious", "recovery position", "passed out but breathing"],
+      "steps": [
+        "Check responsiveness and confirm the person is breathing normally.",
+        "Call emergency services.",
+        "Kneel beside the person and place the arm nearest you at a right angle to their body, palm up.",
+        "Bring the far arm across the chest and hold the back of their hand against the near cheek.",
+        "Grasp the far leg above the knee and pull it up, keeping the foot on the ground, then roll the person toward you onto their side.",
+        "Tilt the head back slightly to keep the airway open and monitor breathing continuously until help arrives."
+      ],
+      "warnings": [
+        "Do not place someone in the recovery position if a spinal injury is suspected unless the airway is at risk; prioritize airway over spinal precautions in that case.",
+        "Recheck breathing regularly while waiting for emergency services.",
+        "If breathing stops at any point, begin CPR immediately."
+      ],
+      "source": {
+        "doc_id": "DLPA_FR_2026",
+        "reference": "DLPA First Responder Training 2026 — Unconscious patient management chapter"
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Evidence-grounded first-aid assistant">
+  <title>First Aid Companion</title>
+  <link rel="stylesheet" href="/styles.css?v=chatbot-ui-2">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Application navigation">
+      <a class="brand" href="/" aria-label="First Aid Companion home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.2 3.5h5.6v5.7h5.7v5.6h-5.7v5.7H9.2v-5.7H3.5V9.2h5.7z"/></svg></span>
+        <span><strong>First Aid</strong><small>Companion</small></span>
+      </a>
+      <nav class="nav-tabs" aria-label="Main sections">
+        <button class="nav-tab active" data-view="chat" type="button"><svg viewBox="0 0 24 24"><path d="M20 15a3 3 0 0 1-3 3H8l-4 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3z"/></svg>Ask assistant</button>
+        <button class="nav-tab" data-view="documents" type="button"><svg viewBox="0 0 24 24"><path d="M6 2h8l4 4v16H6zM14 2v5h5M9 12h6M9 16h6"/></svg>Knowledge base</button>
+      </nav>
+      <section class="conversation-history" aria-labelledby="conversationHistoryTitle">
+        <div class="conversation-history-heading">
+          <strong id="conversationHistoryTitle">Conversations</strong>
+          <button id="newConversation" type="button" aria-label="Start a new conversation" title="New conversation">+</button>
+        </div>
+        <div class="conversation-list" id="conversationList" aria-live="polite">
+          <span class="conversation-list-empty">No previous conversations</span>
+        </div>
+      </section>
+      <div class="sidebar-note"><svg viewBox="0 0 24 24"><path d="M12 3 3 7v5c0 5.2 3.7 8.6 9 10 5.3-1.4 9-4.8 9-10V7zM9 12l2 2 4-5"/></svg><div><strong>Evidence grounded</strong><span>Answers cite the source manuals.</span></div></div>
+      <div class="api-status" id="apiStatus" role="status"><span class="status-dot"></span><div><strong>Connecting</strong><span>Checking RAG services</span></div></div>
+    </aside>
+
+    <main>
+      <section class="view active" id="chatView" aria-labelledby="chatTitle">
+        <header class="topbar"><div><p class="eyebrow">Clinical knowledge assistant</p><h1 id="chatTitle">How can I help?</h1></div><a class="docs-link" href="/docs" target="_blank">API docs ↗</a></header>
+        <div class="chat-layout">
+          <div class="conversation" id="conversation" aria-live="polite">
+            <div class="welcome" id="welcome">
+              <div class="welcome-symbol" aria-hidden="true">+</div>
+              <h2>Reliable first-aid guidance,<br>grounded in your manuals.</h2>
+              <p>Ask in English or Arabic. Every answer is checked against retrieved evidence and includes its source.</p>
+              <div class="suggestions" aria-label="Suggested questions">
+                <button type="button" data-question="What should I do for a minor thermal burn?">Minor thermal burn <span>→</span></button>
+                <button type="button" data-question="How do I help someone who is choking?">Choking response <span>→</span></button>
+                <button type="button" data-question="What are the first-aid steps for severe bleeding?">Severe bleeding <span>→</span></button>
+              </div>
+            </div>
+          </div>
+          <form class="composer" id="chatForm">
+            <label class="sr-only" for="queryInput">Your first-aid question</label>
+            <textarea id="queryInput" rows="1" maxlength="4000" placeholder="Ask a first-aid question…" required></textarea>
+            <div class="attachment-preview hidden" id="attachmentPreview"><span id="attachmentName"></span><button id="removeAttachment" type="button" aria-label="Remove image">×</button></div>
+            <div class="composer-bottom"><div class="composer-tools"><label class="attach-button" for="imageInput" title="Attach an image"><input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp"><svg viewBox="0 0 24 24"><path d="M9 12.5 14.5 7a3 3 0 0 1 4.2 4.2l-7.4 7.4a5 5 0 0 1-7.1-7.1l7.1-7.1"/></svg></label><span class="grounding-label"><span></span> Multi-agent routing enabled</span></div><button class="send-button" id="sendButton" type="submit" aria-label="Send question"><svg viewBox="0 0 24 24"><path d="m5 12 14-7-4 14-3-6zM5 12h7"/></svg></button></div>
+          </form>
+          <p class="disclaimer">For educational first-aid support only. In an emergency, contact local emergency services.</p>
+        </div>
+      </section>
+
+      <section class="view" id="documentsView" aria-labelledby="documentsTitle">
+        <header class="topbar"><div><p class="eyebrow">RAG source management</p><h1 id="documentsTitle">Knowledge base</h1></div><button class="secondary-button" id="refreshDocuments" type="button">Refresh</button></header>
+        <div class="documents-grid">
+          <section class="panel upload-panel">
+            <div class="panel-heading"><span class="panel-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v6h14v-6"/></svg></span><div><h2>Add a manual</h2><p>Run the complete ingestion pipeline automatically.</p></div></div>
+            <form id="uploadForm">
+              <label class="drop-zone" id="dropZone" for="pdfFile"><input id="pdfFile" name="file" type="file" accept="application/pdf,.pdf" required><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.7-7.9A6 6 0 0 1 18 8.5a4.5 4.5 0 0 1-.5 9H7zM12 16V9m0 0-3 3m3-3 3 3"/></svg><strong id="fileLabel">Drop a PDF here or browse</strong><span>Maximum size 100 MB</span></label>
+              <div class="field-row"><label>Document ID<input id="documentId" name="doc_id" pattern="[A-Za-z0-9_-]+" maxlength="80" placeholder="e.g. RED_CROSS_2026" required></label><label>Document language<select id="ocrLanguage" name="ocr_lang"><option value="en">English</option><option value="ar">Arabic</option></select></label></div>
+              <label class="checkbox"><input id="replaceDocument" name="replace" type="checkbox"><span>Replace an existing managed document with this ID</span></label>
+              <button class="primary-button" id="uploadButton" type="submit">Upload and process</button>
+            </form>
+            <div class="job-card hidden" id="jobCard" aria-live="polite"><div class="job-header"><strong id="jobTitle">Processing document</strong><span id="jobPercent">Working</span></div><div class="progress-track"><div id="jobProgress"></div></div><p id="jobDetail">Preparing upload…</p></div>
+          </section>
+          <section class="panel library-panel">
+            <div class="panel-heading library-heading"><div><h2>Managed documents</h2><p>Documents added through this API.</p></div><span class="count-badge" id="documentCount">0</span></div>
+            <div class="document-list" id="documentList"><div class="empty-state"><span>◇</span><strong>No managed documents yet</strong><p>Your original seven manuals remain safely indexed.</p></div></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast-region" id="toastRegion" aria-live="assertive"></div>
+  <script src="/app.js?v=chatbot-ui-2" defer></script>
+</body>
+</html>

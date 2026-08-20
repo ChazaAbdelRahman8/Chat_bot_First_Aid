@@ -1,0 +1,9 @@
+{
+  "name": "first-aid-chatbot-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone frontend for Agent System A",
+  "scripts": {
+    "check": "node --check src/app.js"
+  }
+}

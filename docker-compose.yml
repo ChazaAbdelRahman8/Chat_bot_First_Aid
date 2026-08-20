@@ -1,0 +1,130 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    container_name: first_aid_qdrant
+    ports:
+      - "6333:6333"   # REST API + web dashboard
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    container_name: first_aid_mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_storage:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  agent-system-a:
+    build:
+      context: .
+      dockerfile: agent-system-a/Dockerfile
+    container_name: first_aid_agent_system_a
+    ports:
+      - "8000:8000"
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: first_aid_chunks
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      GENERATION_MODEL: ${GENERATION_MODEL:-qwen3:4b}
+      GENERATION_PROVIDER: ${GENERATION_PROVIDER:-ollama}
+      GENERATION_TIMEOUT_SECONDS: ${GENERATION_TIMEOUT_SECONDS:-60}
+      GENERATION_FALLBACK_MODEL: ${GENERATION_FALLBACK_MODEL:-qwen3:4b}
+      ARABIC_QUERY_TRANSLATION_ENABLED: ${ARABIC_QUERY_TRANSLATION_ENABLED:-true}
+      ARABIC_QUERY_TRANSLATION_PROVIDER: ${ARABIC_QUERY_TRANSLATION_PROVIDER:-auto}
+      ARABIC_QUERY_TRANSLATION_MODEL: ${ARABIC_QUERY_TRANSLATION_MODEL:-qwen/qwen3.6-27b}
+      ARABIC_QUERY_TRANSLATION_FALLBACK_MODEL: ${ARABIC_QUERY_TRANSLATION_FALLBACK_MODEL:-qwen3:4b}
+      ARABIC_QUERY_TRANSLATION_TIMEOUT_SECONDS: ${ARABIC_QUERY_TRANSLATION_TIMEOUT_SECONDS:-20}
+      AGENT_PROVIDER: ${AGENT_PROVIDER:-auto}
+      AGENT_MODEL: ${AGENT_MODEL:-qwen/qwen3.6-27b}
+      AGENT_FALLBACK_MODEL: ${AGENT_FALLBACK_MODEL:-qwen3:4b}
+      AGENT_TIMEOUT_SECONDS: ${AGENT_TIMEOUT_SECONDS:-60}
+      SUPERVISOR_PROVIDER: ${SUPERVISOR_PROVIDER:-auto}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_SUPERVISOR_MODEL: ${GROQ_SUPERVISOR_MODEL:-openai/gpt-oss-120b}
+      SUPERVISOR_TIMEOUT_SECONDS: ${SUPERVISOR_TIMEOUT_SECONDS:-20}
+      VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
+      WEB_SEARCH_MAX_RESULTS: ${WEB_SEARCH_MAX_RESULTS:-5}
+      INGEST_VISION: ${INGEST_VISION:-true}
+      ALLOW_MODEL_DOWNLOAD: ${ALLOW_MODEL_DOWNLOAD:-true}
+      HF_HOME: /models/huggingface
+      MONGODB_URL: mongodb://mongodb:27017
+      MONGODB_DATABASE: first_aid
+      PROJECT_ROOT: /app
+      AGENT_LOG_PATH: /app/data/logs/agent_io.jsonl
+      AGENT_LOG_MAX_BYTES: ${AGENT_LOG_MAX_BYTES:-10485760}
+      AGENT_LOG_BACKUP_COUNT: ${AGENT_LOG_BACKUP_COUNT:-5}
+      AGENT_SYSTEM_B_URL: http://agent-system-b:8001
+      AGENT_SYSTEM_B_TIMEOUT_SECONDS: ${AGENT_SYSTEM_B_TIMEOUT_SECONDS:-20}
+      AGENT_SYSTEM_B_RETRIES: ${AGENT_SYSTEM_B_RETRIES:-1}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-}
+      MCP_SERVER_URL: http://mcp-server:8002/mcp
+      MCP_TIMEOUT_SECONDS: ${MCP_TIMEOUT_SECONDS:-20}
+    volumes:
+      - ./data:/app/data
+      - huggingface_cache:/models/huggingface
+    depends_on:
+      qdrant:
+        condition: service_started
+      mongodb:
+        condition: service_healthy
+      mcp-server:
+        condition: service_started
+    restart: unless-stopped
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: mcp-server/Dockerfile
+    container_name: first_aid_mcp_server
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  agent-system-b:
+    build:
+      context: .
+      dockerfile: agent-system-b/Dockerfile
+    container_name: first_aid_agent_system_b
+    ports:
+      - "8001:8001"
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      AGENT_B_MODEL: ${AGENT_B_MODEL:-qwen/qwen3.6-27b}
+      AGENT_B_TIMEOUT_SECONDS: ${AGENT_B_TIMEOUT_SECONDS:-20}
+      MONGODB_URL: mongodb://mongodb:27017
+      AGENT_B_MONGODB_DATABASE: ${AGENT_B_MONGODB_DATABASE:-mental_health_appointments}
+      APPOINTMENT_TIMEZONE: ${APPOINTMENT_TIMEZONE:-Asia/Beirut}
+      AGENT_A_REMINDER_WEBHOOK_URL: http://agent-system-a:8000/internal/v1/appointment-reminders
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-}
+      REMINDER_POLL_SECONDS: ${REMINDER_POLL_SECONDS:-10}
+      REMINDER_HTTP_TIMEOUT_SECONDS: ${REMINDER_HTTP_TIMEOUT_SECONDS:-10}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  chatbot-ui:
+    build:
+      context: .
+      dockerfile: chatbot-ui/Dockerfile
+    container_name: first_aid_chatbot_ui
+    ports:
+      - "3000:80"
+    depends_on:
+      agent-system-a:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  qdrant_storage:
+  huggingface_cache:
+  mongodb_storage:

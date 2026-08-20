@@ -1,0 +1,9 @@
+.git
+.pytest_cache
+.vscode
+**/__pycache__
+**/*.pyc
+data
+tmp
+eval
+agent-system-a/tests

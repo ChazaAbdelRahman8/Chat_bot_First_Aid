@@ -1,0 +1,118 @@
+# -----------------------------------------------------------------------------
+# Secrets and local configuration
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# -----------------------------------------------------------------------------
+# Python environments, caches, and generated reports
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# -----------------------------------------------------------------------------
+# Frontend dependencies and builds
+# -----------------------------------------------------------------------------
+node_modules/
+.npm/
+.yarn/
+chatbot-ui/dist/
+chatbot-ui/build/
+
+# -----------------------------------------------------------------------------
+# Editors and operating-system files
+# -----------------------------------------------------------------------------
+.vscode/
+.idea/
+.claude/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# -----------------------------------------------------------------------------
+# Evaluation code, frozen sets, result rows, and reports
+# Excluded for the presentation repository as requested.
+# -----------------------------------------------------------------------------
+/eval/
+/data/evaluation/
+/agent-system-a/src/rag/evaluation/
+/agent-system-a/tests/test_evaluation.py
+/agent-system-a/tests/test_retrieval_golden_builder.py
+/EVALUATION.md
+/*_EVALUATION.md
+/RETRIEVAL_V2_EVALUATION.md
+
+# Local Agent A development utilities are retained on this machine but are
+# not part of the presentation repository.
+/agent-system-a/scripts/
+
+# Test suites remain available locally but are excluded from the presentation
+# repository for every service.
+**/tests/
+**/test_*.py
+**/*_test.py
+
+# -----------------------------------------------------------------------------
+# Private/large corpus, source registry, and generated RAG artifacts.
+# Runtime data remains local and is not part of the presentation repository.
+# -----------------------------------------------------------------------------
+/data/*
+
+# -----------------------------------------------------------------------------
+# Runtime state, uploads, logs, databases, and model artifacts
+# -----------------------------------------------------------------------------
+/tmp/
+/logs/
+**/logs/
+**/uploads/
+**/page_images/
+*.checkpoint.jsonl
+*failed*.jsonl
+qdrant_storage/
+mongodb_storage/
+mongo_data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pid
+*.lock
+*.safetensors
+*.onnx
+*.pt
+*.pth
+
+# -----------------------------------------------------------------------------
+# Local archives and temporary files
+# -----------------------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+reply*.json
+*.zip
+*.7z
+*.tar
+*.tar.gz

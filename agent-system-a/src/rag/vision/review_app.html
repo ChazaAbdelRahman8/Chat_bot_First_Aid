@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>First-Aid Vision Review</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1220;--panel:#111b2e;--line:#273754;--text:#e7edf8;--muted:#98a8c4;--accent:#35b98f;--warn:#e6a23c;--bad:#e65b65}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,sans-serif;height:100vh;overflow:hidden}
+    header{height:64px;display:flex;align-items:center;gap:16px;padding:10px 18px;background:#0e1829;border-bottom:1px solid var(--line)}
+    h1{font-size:18px;margin:0}.muted{color:var(--muted)}select,button,textarea{background:#17243a;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px}
+    button{cursor:pointer}button:hover{border-color:#6e86aa}.primary{background:#14795d}.danger{background:#7e2931}.warning{background:#76551e}
+    #app{display:grid;grid-template-columns:minmax(420px,58%) minmax(380px,42%);height:calc(100vh - 64px)}
+    #imagePane{display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:14px;background:#070c15}#pageImage{max-width:100%;height:auto;background:white}
+    #details{overflow:auto;padding:18px}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.badge{padding:4px 8px;border-radius:999px;background:#253653}.badge.warn{background:#6d4e18}.badge.bad{background:#722832}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;margin:12px 0}h2{font-size:16px;margin:0 0 9px}ul{margin:6px 0;padding-left:20px}li{margin:4px 0}.actions{position:sticky;bottom:0;background:#0e1829;border:1px solid var(--line);padding:10px;border-radius:10px;display:flex;gap:8px;flex-wrap:wrap}
+    textarea{width:100%;min-height:70px;resize:vertical}#editJson{min-height:220px;font:12px ui-monospace,monospace}.hidden{display:none}.spacer{flex:1}
+  </style>
+</head>
+<body>
+  <header><h1>First-Aid Vision Review</h1><span id="progress" class="muted"></span><select id="filter"><option value="all">All</option><option value="undecided">Undecided</option><option value="absence_only">Absence-only</option><option value="visual_ambiguity">Visual ambiguity</option><option value="model_error">Model errors</option><option value="low_information">Low information</option></select><button id="batchApprove">Approve undecided absence-only</button><span class="spacer"></span><button id="prev">← Previous</button><button id="next">Next →</button></header>
+  <main id="app"><div id="imagePane"><img id="pageImage" alt="Manual page"></div><div id="details">
+    <div class="row"><strong id="recordId"></strong><span id="category" class="badge"></span><span id="recommendation" class="badge warn"></span><span id="decisionBadge" class="badge"></span></div>
+    <section><h2>Description</h2><p id="description"></p><h2>Visible labels</h2><ul id="labels"></ul><h2>Demonstrated actions</h2><ul id="actions"></ul><h2>Action sequence</h2><ul id="steps"></ul><h2>Warnings</h2><ul id="warnings"></ul></section>
+    <section><h2>Ambiguities / error</h2><ul id="ambiguities"></ul><pre id="modelError"></pre></section>
+    <section><h2>Reviewer notes</h2><textarea id="notes" placeholder="Why was this decision made?"></textarea><div id="editWrap" class="hidden"><h2>Edited structured description</h2><textarea id="editJson"></textarea></div></section>
+    <div class="actions"><button class="primary" data-decision="approve">Approve (A)</button><button data-decision="edit">Edit (E)</button><button class="danger" data-decision="exclude">Exclude (X)</button><button class="warning" data-decision="retry">Retry (R)</button></div>
+  </div></main>
+<script>
+let queue=[], decisions={}, filtered=[], index=0;
+const $=id=>document.getElementById(id); const list=(id,values)=>{$(id).innerHTML=(values||[]).map(v=>`<li>${escapeHtml(String(v))}</li>`).join('')||'<li class="muted">None</li>'};
+const escapeHtml=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function init(){queue=await (await fetch('/api/queue')).json(); const saved=await (await fetch('/api/decisions')).json(); decisions=saved.decisions||{}; applyFilter();}
+function applyFilter(){const f=$('filter').value; filtered=queue.filter(q=>f==='all'||(f==='undecided'&&!decisions[q.visual_id])||q.review_category===f); index=Math.min(index,Math.max(filtered.length-1,0)); render();}
+function render(){if(!filtered.length){$('recordId').textContent='No records in this filter';return}const q=filtered[index],d=q.description||{},saved=decisions[q.visual_id];$('recordId').textContent=`${q.record_id} · PDF ${q.pdf_page}`;$('category').textContent=q.review_category;$('recommendation').textContent=`recommended: ${q.recommended_decision}`;$('decisionBadge').textContent=saved?`decision: ${saved.decision}`:'undecided';$('pageImage').src=`/api/image?visual_id=${encodeURIComponent(q.visual_id)}`;$('description').textContent=d.description||'No model description';list('labels',d.visible_labels);list('actions',d.demonstrated_actions);list('steps',d.action_sequence);list('warnings',d.warnings_visible);list('ambiguities',d.ambiguities);$('modelError').textContent=q.model_error||'';$('notes').value=saved?.notes||'';$('editWrap').classList.toggle('hidden',saved?.decision!=='edit');$('editJson').value=JSON.stringify(saved?.edited_description||d,null,2);$('progress').textContent=`${index+1}/${filtered.length} · ${Object.keys(decisions).length}/${queue.length} decided`;}
+async function decide(action){const q=filtered[index];let edited; if(action==='edit'){try{edited=JSON.parse($('editJson').value)}catch(e){alert('Edited description is not valid JSON');return}}decisions[q.visual_id]={decision:action,notes:$('notes').value,reviewed_at:new Date().toISOString(),...(edited?{edited_description:edited}:{})};const response=await fetch('/api/decisions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({decisions})});if(!response.ok){alert((await response.json()).error);return}if($('filter').value==='undecided')applyFilter();else{index=Math.min(index+1,filtered.length-1);render();}}
+document.querySelectorAll('[data-decision]').forEach(b=>b.onclick=()=>decide(b.dataset.decision));$('prev').onclick=()=>{index=Math.max(0,index-1);render()};$('next').onclick=()=>{index=Math.min(filtered.length-1,index+1);render()};$('filter').onchange=()=>{index=0;applyFilter()};
+$('batchApprove').onclick=async()=>{const ids=queue.filter(q=>q.review_category==='absence_only'&&!decisions[q.visual_id]);if(!ids.length)return alert('No undecided absence-only records.');if(!confirm(`Approve ${ids.length} absence-only records? Sample them first.`))return;for(const q of ids)decisions[q.visual_id]={decision:'approve',notes:'Batch-approved absence-only ambiguity after reviewer confirmation.',reviewed_at:new Date().toISOString()};await fetch('/api/decisions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({decisions})});applyFilter()};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;const k=e.key.toLowerCase();if(k==='a')decide('approve');if(k==='e')decide('edit');if(k==='x')decide('exclude');if(k==='r')decide('retry');if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click()});init();
+</script></body></html>

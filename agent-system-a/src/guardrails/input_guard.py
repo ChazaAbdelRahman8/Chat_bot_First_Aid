@@ -40,6 +40,28 @@ _NAME_RECALL = re.compile(
     r"^(?:what(?:'s|\s+is)\s+my\s+name|do\s+you\s+remember\s+my\s+name)[?!.\s]*$",
     re.IGNORECASE,
 )
+_INJURY_RECALL = re.compile(
+    r"^(?:what did i say was injured|what injury did i mention|"
+    r"which (?:body part|part) did i (?:(?:say (?:was|is) injured)|"
+    r"(?:say i )?injure))\??$|"
+    r"^(?:ماذا قلت.*(?:أصيب|مصاب)|ما الإصابة التي ذكرت|أي جزء.*أصيب)\؟?$|"
+    r"^(?:quelle blessure ai-je mentionnée|qu'est-ce que j'ai dit.*blessé)\??$",
+    re.IGNORECASE,
+)
+_BODY_PART = re.compile(
+    r"\b(?:(left|right)\s+)?(ankle|wrist|hand|arm|leg|knee|foot|shoulder|"
+    r"elbow|head|neck|back|chest|abdomen|eye|ear|nose|finger|toe|hip)\b|"
+    r"(?:(الأيسر|الأيمن|اليسرى|اليمنى)\s+)?"
+    r"(كاحل(?:ها|ه|ي)?|رسغ(?:ها|ه|ي)?|يد(?:ها|ه|ي)?|ذراع(?:ها|ه|ي)?|"
+    r"ساق(?:ها|ه|ي)?|ركبة(?:ها|ه|ي)?|قدم(?:ها|ه|ي)?|كتف(?:ها|ه|ي)?|"
+    r"مرفق(?:ها|ه|ي)?|رأس(?:ها|ه|ي)?|رقبة(?:ها|ه|ي)?|ظهر(?:ها|ه|ي)?|"
+    r"صدر(?:ها|ه|ي)?|بطن(?:ها|ه|ي)?|عين(?:ها|ه|ي)?|أذن(?:ها|ه|ي)?|"
+    r"أنف(?:ها|ه|ي)?|إصبع(?:ها|ه|ي)?|ورك(?:ها|ه|ي)?)|"
+    r"\b(?:(gauche|droit|droite)\s+)?(cheville|poignet|main|bras|jambe|"
+    r"genou|pied|épaule|coude|tête|cou|dos|poitrine|abdomen|œil|oreille|"
+    r"nez|doigt|orteil|hanche)\b",
+    re.IGNORECASE,
+)
 _THANKS_ONLY = re.compile(r"^(?:thanks|thank\s+you|many\s+thanks)[!.,\s]*$", re.IGNORECASE)
 _FAREWELL_ONLY = re.compile(r"^(?:bye|goodbye|see\s+you)[!.,\s]*$", re.IGNORECASE)
 _OUT_OF_SCOPE = (
@@ -57,8 +79,9 @@ _OUT_OF_SCOPE = (
 _FIRST_AID_INTENT = re.compile(
     r"\b(?:first aid|injur|bleed|bleeding|cut|burn|chok|fracture|wound|"
     r"breath|unconscious|emergency|seizure|shock|cpr|heat exhaustion|"
-    r"heat stroke)\w*\b|"
-    r"(?:إسعاف|إصابة|نزيف|حرق|اختناق|كسر|جرح|تنفس|فاقد الوعي|طوارئ)",
+    r"heat stroke|ankle|sprain|swell|twist|pain)\w*\b|"
+    r"(?:إسعاف|إصابة|نزيف|حرق|اختناق|كسر|جرح|تنفس|فاقد الوعي|طوارئ|"
+    r"كاحل|التواء|التوى|تورم|متورم|مؤلم|ألم)",
     re.IGNORECASE,
 )
 
@@ -66,6 +89,25 @@ _FIRST_AID_INTENT = re.compile(
 def has_first_aid_intent(query: str) -> bool:
     """Return whether a mixed request still contains actionable first-aid intent."""
     return bool(_FIRST_AID_INTENT.search(query))
+
+
+def is_conversational_recall(query: str) -> bool:
+    """Return whether query is itself a recall/meta-question about earlier
+    conversation content (e.g. "which body part did I say was injured?"),
+    not a substantive description that a later follow-up should be able to
+    treat as real injury/context content. Both this guard and any follow-up
+    context-threading elsewhere must skip these - they contain first-aid
+    keywords (e.g. "injured") without describing an actual injury.
+    """
+    text = query.strip()
+    return bool(_NAME_RECALL.fullmatch(text) or _INJURY_RECALL.fullmatch(text))
+
+
+def _injured_body_part(description: str) -> str | None:
+    match = _BODY_PART.search(description)
+    if not match:
+        return None
+    return " ".join(part for part in match.groups() if part).strip()
 
 
 def greeting_response(query: str) -> tuple[str, str] | None:
@@ -106,6 +148,43 @@ def conversational_response(
                 name = " ".join(previous.group(1).split())
                 return (f"Your name is {name}.", "en")
         return ("You haven't told me your name in this conversation yet.", "en")
+    if _INJURY_RECALL.fullmatch(text):
+        previous_description = None
+        for message in reversed(history or []):
+            if message.get("role") != "user":
+                continue
+            content = message.get("content", "").strip()
+            if not content:
+                continue
+            # A prior instance of this same recall question also contains
+            # "injured" and would otherwise match has_first_aid_intent,
+            # making the answer echo a previous echo instead of digging
+            # back to the actual injury description.
+            if _INJURY_RECALL.fullmatch(content):
+                continue
+            if has_first_aid_intent(content):
+                previous_description = content
+                break
+        arabic = any("\u0600" <= character <= "\u06ff" for character in text)
+        french = bool(re.search(r"\b(?:quelle|blessure|blessé)\b", text, re.I))
+        if previous_description:
+            body_part = _injured_body_part(previous_description)
+            if arabic:
+                if body_part:
+                    return (f"الجزء المصاب الذي ذكرته هو {body_part}.", "ar")
+                return (f"قلت سابقاً: «{previous_description}»", "ar")
+            if french:
+                if body_part:
+                    return (f"Vous avez indiqué que la partie blessée était {body_part}.", "en")
+                return (f"Vous avez dit précédemment : « {previous_description} »", "en")
+            if body_part:
+                return (f"You said the injured body part was the {body_part}.", "en")
+            return (f'You previously said: “{previous_description}”', "en")
+        if arabic:
+            return ("لم تذكر إصابة سابقة في هذه المحادثة.", "ar")
+        if french:
+            return ("Vous n’avez pas encore décrit de blessure dans cette conversation.", "en")
+        return ("You haven't described an injury in this conversation yet.", "en")
     if _THANKS_ONLY.fullmatch(text):
         return ("You're welcome. Let me know if you need more first-aid guidance.", "en")
     if _FAREWELL_ONLY.fullmatch(text):

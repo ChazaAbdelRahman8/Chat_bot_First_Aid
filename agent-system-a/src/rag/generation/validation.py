@@ -83,6 +83,23 @@ def _language_matches(query: str, response_text: str) -> bool:
     return ratio >= 0.5 if query_language == "ar" else ratio < 0.5
 
 
+def _normalize_for_echo_check(text: str) -> str:
+    stripped = CITATION_PATTERN.sub("", CITATION_GROUP_PATTERN.sub("", text))
+    return re.sub(r"\s+", " ", stripped.strip().rstrip("؟?!.،,")).casefold()
+
+
+def _is_query_echo(text: str, query: str) -> bool:
+    """A weak/confused model can degenerate into parroting the question back
+    as its own answer or abstention reason - this has no citations to catch
+    it (an abstention needs none) and no language mismatch to catch it
+    (the echoed text is trivially in the right language), so it must be
+    checked for directly.
+    """
+    if not text.strip():
+        return False
+    return _normalize_for_echo_check(text) == _normalize_for_echo_check(query)
+
+
 def validate_generation(
     raw: dict[str, Any], *, query: str, allowed_labels: set[str],
 ) -> dict[str, Any]:
@@ -111,6 +128,8 @@ def validate_generation(
             raise ValueError("an abstention must not include citations")
         if not reason.strip():
             raise ValueError("an abstention requires insufficient_evidence_reason")
+        if _is_query_echo(reason, query):
+            raise ValueError("insufficient_evidence_reason must not just repeat the question")
     else:
         if not answer.strip():
             raise ValueError("a non-abstaining answer must not be empty")
@@ -121,6 +140,8 @@ def validate_generation(
             raise ValueError(f"every factual sentence or bullet requires a citation: {uncited[:2]}")
         if reason.strip():
             raise ValueError("a non-abstaining answer must have an empty reason")
+        if _is_query_echo(answer, query):
+            raise ValueError("the answer must not just repeat the question")
     language_text = answer if not abstain else f"{answer} {reason}"
     if not _language_matches(query, language_text):
         raise ValueError("response language does not match the question")

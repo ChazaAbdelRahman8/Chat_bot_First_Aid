@@ -40,8 +40,10 @@ flowchart LR
   retrieval and citation-backed answers from the seven manuals.
 - **Web-search agent** handles explicitly current public information and returns
   source URLs; it does not replace the manuals for first-aid technique.
-- **Visual agent** analyzes user-attached images with Qwen2.5-VL under strict
-  non-diagnosis and evidence-only constraints.
+- **Visual agent** analyzes user-attached images with Qwen3-VL through
+  OpenRouter and falls back to local Qwen2.5-VL through Ollama. Manual-page
+  rendering remains local. Both paths enforce non-diagnosis and evidence-only
+  constraints.
 - **Protocol-tools agent** calls the standalone `mcp-server` over the network
   (MCP Streamable HTTP transport, never a Python import) for deterministic,
   non-RAG first-aid capabilities: an ordered step-by-step protocol lookup
@@ -76,6 +78,27 @@ Start the current services with one command:
 ```powershell
 docker compose up -d --build
 ```
+
+### Configure OpenRouter for uploaded images
+
+Create a key in the OpenRouter dashboard, copy `.env.example` to `.env`, and
+set the key only in the local `.env` file:
+
+```env
+UPLOAD_VISION_PROVIDER=auto
+UPLOAD_VISION_MODEL=qwen/qwen3-vl-32b-instruct
+UPLOAD_VISION_FALLBACK_MODEL=qwen2.5vl:7b
+UPLOAD_VISION_TIMEOUT_SECONDS=30
+OPENROUTER_API_KEY=your_openrouter_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+```
+
+With `auto`, uploaded images use OpenRouter when the key is present and fall
+back to the local Ollama vision model if the remote request fails. PDF visual
+ingestion remains local through `INGEST_VISION_MODEL=qwen2.5vl:7b`. The real
+`.env` is ignored by Git and must never be committed. Because uploaded images
+may leave the local machine, the frontend warns users not to submit identifiable
+or sensitive images.
 
 - Chatbot UI: `http://127.0.0.1:3000`
 - Agent System A API docs: `http://127.0.0.1:8000/docs`

@@ -50,7 +50,7 @@
           <form class="composer" id="chatForm">
             <label class="sr-only" for="queryInput">Your first-aid question</label>
             <textarea id="queryInput" rows="1" maxlength="4000" placeholder="Ask a first-aid question…" required></textarea>
-            <div class="attachment-preview hidden" id="attachmentPreview"><span id="attachmentName"></span><button id="removeAttachment" type="button" aria-label="Remove image">×</button></div>
+            <div class="attachment-preview hidden" id="attachmentPreview"><div><strong id="attachmentName"></strong><small>Uploaded images may be processed by the configured external AI provider. Avoid identifiable or sensitive images.</small></div><button id="removeAttachment" type="button" aria-label="Remove image">×</button></div>
             <div class="composer-bottom"><div class="composer-tools"><label class="attach-button" for="imageInput" title="Attach an image"><input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp"><svg viewBox="0 0 24 24"><path d="M9 12.5 14.5 7a3 3 0 0 1 4.2 4.2l-7.4 7.4a5 5 0 0 1-7.1-7.1l7.1-7.1"/></svg></label><span class="grounding-label"><span></span> Multi-agent routing enabled</span></div><button class="send-button" id="sendButton" type="submit" aria-label="Send question"><svg viewBox="0 0 24 24"><path d="m5 12 14-7-4 14-3-6zM5 12h7"/></svg></button></div>
           </form>
           <p class="disclaimer">For educational first-aid support only. In an emergency, contact local emergency services.</p>

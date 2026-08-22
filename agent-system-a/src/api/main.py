@@ -70,6 +70,14 @@ def create_app(
             arabic_translation_model=os.getenv(
                 "ARABIC_QUERY_TRANSLATION_MODEL", "qwen/qwen3.6-27b"
             ),
+            arabic_translation_openrouter_api_key=os.getenv("OPENROUTER_API_KEY"),
+            arabic_translation_openrouter_model=os.getenv(
+                "ARABIC_QUERY_TRANSLATION_OPENROUTER_MODEL",
+                "qwen/qwen3.5-flash-02-23",
+            ),
+            arabic_translation_openrouter_url=os.getenv(
+                "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
+            ),
             arabic_translation_fallback_model=os.getenv(
                 "ARABIC_QUERY_TRANSLATION_FALLBACK_MODEL", "qwen3:4b"
             ),
@@ -82,7 +90,10 @@ def create_app(
         ingestor = DocumentIngestor(
             runtime,
             ollama_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-            vision_model=os.getenv("VISION_MODEL", "qwen2.5vl:7b"),
+            vision_model=os.getenv(
+                "INGEST_VISION_MODEL",
+                os.getenv("VISION_MODEL", "qwen2.5vl:7b"),
+            ),
             vision_enabled=os.getenv("INGEST_VISION", "true").lower() == "true",
         )
         app.state.runtime = runtime
@@ -93,8 +104,21 @@ def create_app(
             agent_provider=os.getenv("AGENT_PROVIDER", "auto"),
             agent_fallback_model=os.getenv("AGENT_FALLBACK_MODEL", "qwen3:4b"),
             agent_timeout=float(os.getenv("AGENT_TIMEOUT_SECONDS", "60")),
-            vision_model=os.getenv("VISION_MODEL", "qwen2.5vl:7b"),
+            vision_model=os.getenv(
+                "UPLOAD_VISION_MODEL", "qwen/qwen3-vl-32b-instruct"
+            ),
             ollama_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            upload_vision_provider=os.getenv("UPLOAD_VISION_PROVIDER", "auto"),
+            upload_vision_fallback_model=os.getenv(
+                "UPLOAD_VISION_FALLBACK_MODEL", "qwen2.5vl:7b"
+            ),
+            openrouter_api_key=os.getenv("OPENROUTER_API_KEY"),
+            openrouter_url=os.getenv(
+                "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
+            ),
+            upload_vision_timeout=int(os.getenv(
+                "UPLOAD_VISION_TIMEOUT_SECONDS", "30"
+            )),
             web_max_results=int(os.getenv("WEB_SEARCH_MAX_RESULTS", "5")),
             supervisor_provider=os.getenv("SUPERVISOR_PROVIDER", "auto"),
             groq_api_key=os.getenv("GROQ_API_KEY"),

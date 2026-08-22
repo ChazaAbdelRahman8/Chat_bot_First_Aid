@@ -18,6 +18,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from guardrails import (
     conversational_response, evaluate_input, greeting_response, has_first_aid_intent,
+    is_conversational_recall,
 )
 from guardrails.output_guard import validate_agent_output
 from rag.generation.service import policy_gate_response
@@ -49,8 +50,9 @@ CURRENT_INFORMATION = re.compile(
 )
 FIRST_AID_SIGNAL = re.compile(
     r"\b(?:first aid|injur|bleed|burn|chok|fracture|wound|breath|unconscious|"
-    r"emergency|pain|poison|seizure|shock|cpr)\w*\b|"
-    r"(?:إسعاف|إصابة|نزيف|حرق|اختناق|كسر|جرح|تنفس|فاقد الوعي|طوارئ)",
+    r"emergency|pain|poison|seizure|shock|cpr|ankle|sprain|swell|twist)\w*\b|"
+    r"(?:إسعاف|إصابة|نزيف|حرق|اختناق|كسر|جرح|تنفس|فاقد الوعي|طوارئ|"
+    r"كاحل|التواء|التوى|تورم|متورم|مؤلم|ألم)",
     re.IGNORECASE,
 )
 MANUAL_VISUAL_SIGNAL = re.compile(
@@ -92,6 +94,16 @@ PROTOCOL_TOOL_SIGNAL = re.compile(
     r"triage calculat\w*|severity calculat\w*)\b",
     re.IGNORECASE,
 )
+FOLLOW_UP_REFERENCE_SIGNAL = re.compile(
+    r"\b(?:he|she|it|they|him|her|them|his|their|this|that|these|those)\b|"
+    r"\b(?:what should (?:i|we|he|she|they)|what about|warning signs?|"
+    r"when should|is it safe|can (?:he|she|they|i|we))\b|"
+    r"(?:ماذا (?:أفعل|نفعل)|ما هي العلامات|متى يجب|هل (?:يجب|يستطيع|تستطيع)|"
+    r"هذا|هذه|هو|هي)|"
+    r"\b(?:que faire|quels signes|quand faut-il|est-ce (?:sûr|sur)|"
+    r"peut-il|peut-elle|ceci|cela)\b",
+    re.IGNORECASE,
+)
 
 
 class RouteItem(BaseModel):
@@ -109,6 +121,29 @@ def _first_aid_only_subquery(query: str) -> str | None:
         if has_first_aid_intent(item) and not MIXED_CURRENT_SCOPE_SIGNAL.search(item)
     ]
     return " ".join(first_aid).strip() or None
+
+
+def _history_follow_up_query(
+    query: str, history: Sequence[Mapping[str, str]],
+) -> str | None:
+    """Make anaphoric follow-ups self-contained using user-authored context only."""
+    if not FOLLOW_UP_REFERENCE_SIGNAL.search(query):
+        return None
+    for message in reversed(history):
+        if str(message.get("role", "")).lower() != "user":
+            continue
+        previous = str(message.get("content", "")).strip()
+        if not previous or previous == query.strip():
+            continue
+        # A recall question like "which body part did I say was injured?"
+        # contains first-aid keywords without describing an actual injury -
+        # using it as context would feed the next follow-up a meta-question
+        # about the conversation instead of the real injury description.
+        if is_conversational_recall(previous):
+            continue
+        if has_first_aid_intent(previous) or FIRST_AID_SIGNAL.search(previous):
+            return f"Previous user context: {previous}\nFollow-up question: {query.strip()}"
+    return None
 
 
 class RoutingDecision(BaseModel):
@@ -156,6 +191,11 @@ class AgentSystemA:
         groq_model: str = "openai/gpt-oss-120b", supervisor_timeout: float = 20,
         appointment_client: Any | None = None,
         mcp_server_url: str = "http://mcp-server:8002/mcp", mcp_timeout: float = 20,
+        upload_vision_provider: str = "ollama",
+        upload_vision_fallback_model: str = "qwen2.5vl:7b",
+        openrouter_api_key: str | None = None,
+        openrouter_url: str = "https://openrouter.ai/api/v1",
+        upload_vision_timeout: int = 30,
     ) -> None:
         self.agent_model = agent_model
         self.runtime = runtime
@@ -171,6 +211,11 @@ class AgentSystemA:
         self.groq_api_key = groq_api_key
         self.groq_model = groq_model
         self.supervisor_timeout = supervisor_timeout
+        self.upload_vision_provider = upload_vision_provider
+        self.upload_vision_fallback_model = upload_vision_fallback_model
+        self.openrouter_api_key = openrouter_api_key
+        self.openrouter_url = openrouter_url
+        self.upload_vision_timeout = upload_vision_timeout
         self.appointment_client = appointment_client
         self.rag = RagReActAgent(
             runtime, model=agent_model, ollama_url=ollama_url,
@@ -469,6 +514,10 @@ class AgentSystemA:
     def _normalize_routes(
         self, items: list[RouteItem], state: AgentState,
     ) -> list[dict[str, str]]:
+        # An uploaded image is handled exclusively by the request-scoped visual
+        # specialist. Manual retrieval remains a separate, explicit workflow.
+        if state.get("image_path") is not None:
+            return [{"agent": "visual", "request": state["query"]}]
         scoped_query = _first_aid_only_subquery(state["query"])
         selected: dict[str, str] = {}
         for item in items:
@@ -481,6 +530,14 @@ class AgentSystemA:
             selected.setdefault(item.agent, item.request.strip())
         if "appointment" in selected or APPOINTMENT_SIGNAL.search(state["query"]):
             selected = {"appointment": state["query"]}
+        history_search_request = _history_follow_up_query(
+            state["query"], state.get("history", []),
+        )
+        if history_search_request and "appointment" not in selected:
+            # A contextual medical follow-up belongs to RAG even when the LLM
+            # router labels a generic phrase such as "what should I do?" as a
+            # protocol request or scope request.
+            selected = {"rag": state["query"]}
         if "scope_guard" in selected:
             if scoped_query:
                 selected = {"rag": scoped_query}
@@ -497,6 +554,8 @@ class AgentSystemA:
                 selected.pop("protocol_tools", None)
             selected.setdefault("rag", scoped_query)
         rag_search_request = selected.get("rag")
+        if history_search_request and "rag" in selected:
+            rag_search_request = history_search_request
         # Preserve the original utterance unless the deterministic scope policy
         # extracted a narrower first-aid-only clause from a mixed request.
         for specialist in ("rag", "visual", "appointment", "protocol_tools"):
@@ -515,9 +574,6 @@ class AgentSystemA:
         ):
             selected.setdefault("rag", state["query"])
             selected.setdefault("web_search", state["query"])
-        if state.get("image_path") is not None and FIRST_AID_SIGNAL.search(state["query"]):
-            selected.setdefault("visual", state["query"])
-            selected.setdefault("rag", state["query"])
         if state.get("image_path") is None and MANUAL_VISUAL_SIGNAL.search(state["query"]):
             selected.pop("web_search", None)
             selected.setdefault("visual", state["query"])
@@ -536,12 +592,22 @@ class AgentSystemA:
 
     def _deterministic_routes(self, state: AgentState) -> list[dict[str, str]]:
         query = state["query"]
+        if state.get("image_path") is not None:
+            return [{"agent": "visual", "request": query}]
+        if APPOINTMENT_SIGNAL.search(query):
+            return [{"agent": "appointment", "request": query}]
+        history_search_request = _history_follow_up_query(
+            query, state.get("history", []),
+        )
+        if history_search_request:
+            return [{
+                "agent": "rag", "request": query,
+                "search_request": history_search_request,
+            }]
         scoped_query = _first_aid_only_subquery(query)
         if scoped_query:
             agent = "protocol_tools" if PROTOCOL_TOOL_SIGNAL.search(scoped_query) else "rag"
             return [{"agent": agent, "request": scoped_query}]
-        if APPOINTMENT_SIGNAL.search(query):
-            return [{"agent": "appointment", "request": query}]
         if PROTOCOL_TOOL_SIGNAL.search(query):
             return [{"agent": "protocol_tools", "request": query}]
         routes: list[dict[str, str]] = []
@@ -549,11 +615,7 @@ class AgentSystemA:
             routes.append({"agent": "web_search", "request": query})
         else:
             routes.append({"agent": "rag", "request": query})
-        if state.get("image_path") is not None:
-            routes.append({"agent": "visual", "request": query})
-            if FIRST_AID_SIGNAL.search(query) and not any(row["agent"] == "rag" for row in routes):
-                routes.insert(0, {"agent": "rag", "request": query})
-        elif MANUAL_VISUAL_SIGNAL.search(query):
+        if MANUAL_VISUAL_SIGNAL.search(query):
             if not any(row["agent"] == "rag" for row in routes):
                 routes.insert(0, {"agent": "rag", "request": query})
             routes.append({"agent": "visual", "request": query})
@@ -637,6 +699,11 @@ class AgentSystemA:
                     agent_provider=self.agent_provider, groq_api_key=self.groq_api_key,
                     agent_timeout=self.agent_timeout,
                     agent_fallback_model=self.agent_fallback_model,
+                    vision_provider=self.upload_vision_provider,
+                    vision_fallback_model=self.upload_vision_fallback_model,
+                    openrouter_api_key=self.openrouter_api_key,
+                    openrouter_url=self.openrouter_url,
+                    vision_timeout=self.upload_vision_timeout,
                 )
                 output = visual.run(request)
                 payload = {"mode": "attachment_analysis", "visuals": []}
@@ -763,6 +830,27 @@ class AgentSystemA:
                     "appointment": payload,
                     "answer_agent": {
                         "used": False, "mode": "appointment_passthrough", "valid": True,
+                    },
+                },
+            }
+        if routes == ["visual"] and state.get("image_path") is not None:
+            output = successful[0]["output"]
+            return {
+                "answer_mode": "visual_passthrough",
+                "response": {
+                    "query": state["query"],
+                    "route": routes,
+                    "specialists": successful + failures,
+                    "retrieval": None,
+                    "generation": {
+                        "status": "answered", "answer": output,
+                        "citations": [], "citation_labels": [],
+                        "abstention_category": None, "language": language,
+                        "model": self.vision_model, "agent_route": routes,
+                    },
+                    "visuals": [],
+                    "answer_agent": {
+                        "used": False, "mode": "visual_passthrough", "valid": True,
                     },
                 },
             }

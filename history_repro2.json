@@ -1,0 +1,551 @@
+{
+  "r3": {
+    "conversation_id": "5f741c98-94cd-45ad-bd9f-97c09459b1cc",
+    "query": "Which body part did I say was injured?",
+    "route": [
+      "supervisor"
+    ],
+    "specialists": [],
+    "retrieval": null,
+    "generation": {
+      "status": "answered",
+      "answer": "You said the injured body part was the ankle.",
+      "citations": [],
+      "citation_labels": [],
+      "abstention_category": null,
+      "language": "en",
+      "model": "deterministic",
+      "agent_route": [
+        "supervisor"
+      ]
+    },
+    "answer_agent": {
+      "used": false,
+      "mode": "conversation",
+      "valid": true
+    },
+    "orchestration": {
+      "supervisor_provider": "not_used",
+      "supervisor_model": "not_used",
+      "supervisor_latency_ms": 0.0,
+      "selected_routes": [],
+      "input_guard": "conversation",
+      "router_errors": [],
+      "specialist_failures": [],
+      "specialist_diagnostics": [],
+      "answer_mode": "conversation",
+      "answer_attempts": 0,
+      "output_guard": "passed",
+      "output_guard_errors": [],
+      "trajectory": [
+        "input_guard",
+        "output_guard"
+      ],
+      "node_trace": [
+        {
+          "node": "input_guard",
+          "latency_ms": 0.352
+        },
+        {
+          "node": "output_guard",
+          "latency_ms": 0.045
+        }
+      ],
+      "node_steps": 2,
+      "tool_trace": [],
+      "tool_calls": 0,
+      "usage": {
+        "models": {},
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "model_calls": 0,
+        "estimated_cost_usd": 0.0,
+        "unknown_pricing_models": [],
+        "pricing_basis": "Groq on-demand USD per 1M tokens; local Ollama API cost is $0"
+      }
+    },
+    "visuals": [],
+    "appointment": null
+  },
+  "r4": {
+    "conversation_id": "5f741c98-94cd-45ad-bd9f-97c09459b1cc",
+    "query": "Should she try to walk on it?",
+    "route": [
+      "rag"
+    ],
+    "specialists": [
+      {
+        "agent": "rag",
+        "request": "Should she try to walk on it?",
+        "output": "She should not walk on it [S1].",
+        "payload": {
+          "query": "Should she try to walk on it?",
+          "retrieval_query": "Previous user context: My sister slipped on the stairs and twisted her ankle. It's swollen and painful but no open wound.\nFollow-up question: Should she try to walk on it?",
+          "retrieval": {
+            "route": "english_dense_top8",
+            "language": "en",
+            "translation": {
+              "enabled": true,
+              "attempted": false,
+              "succeeded": false,
+              "provider": "openrouter_then_groq_then_ollama",
+              "model": "qwen/qwen3.5-flash-02-23|qwen/qwen3.6-27b|qwen3:4b",
+              "translated_query": null,
+              "error": null
+            },
+            "result_count": 8,
+            "doc_id_filter": null,
+            "results": [
+              {
+                "chunk_id": "structure_aware:IFRC_FA_2025:p306:c000:aa0a7105795d",
+                "doc_id": "IFRC_FA_2025",
+                "page": "306",
+                "pdf_page": 306,
+                "section": "Evidence gaps",
+                "language": "en",
+                "content_type": "text",
+                "text": "ankle range of motion, and time to return to work or normal walking, stair climbing and full\nweight-bearing.\n\nFor the important outcome of recovery time (measured by return to sports), very low-certainty\nevidence from one randomized trial enrolling 117 adults with ankle sprains was identified,\nshowing benefit from the use of a compression bandage when compared with the use of\nnon-compressive stockings.\n\nTherefore, if the person with an ankle strain wants a compression dressing, this is acceptable as\nthere is no evidence of harm caused by the dressing.\n\nEvidence gaps\nMore research is needed on the optimal frequency, duration and initial timing of ice or cooling\ntreatments after an acute injury, as sources are inconsistent in their recommendations.\n\n​\n306​ |​ International first aid, resuscitation and education guidelines 2025 ⚙️",
+                "record_id": "IFRC_FA_2025:p306",
+                "score": 0.6168978,
+                "dense_score": 0.6168978,
+                "dense_rank": 1,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:LRC_EMT_2020:p404:c000:3c643c74a419",
+                "doc_id": "LRC_EMT_2020",
+                "page": "400",
+                "pdf_page": 404,
+                "section": "Trauma Emergencies",
+                "language": "en",
+                "content_type": "text",
+                "text": "Trauma Emergencies\n\nMCQ Practice Questions:\n\nQuestion 1\nYour patient is a 21-year-old female who fell onto her outstretched hands while\nrollerblading. She has a deformity of her forearm, about 5 cm proximal to her\nwrist. This injury is a result of which of the following mechanisms?\n(A) Direct force\n(B) Indirect force\n(C) Sudden acceleration\n(D) Twisting motion\n\nQuestion 2\nYour patient is a 37-year-old man who tripped while walking down a hill and\nnow has a painful, deformed right leg. The patient is alert and oriented with an\nisolated injury in the right leg. Your assessment reveals that the foot is cold and\nmottled in appearance. You cannot detect a pulse in the foot or ankle. Which\nof the following is the next step in your course of action?\n(A) Fully immobilize the patient into a long spine board\n(B) Gently attempt to straighten the leg to regain a pulse before splinting.\n(C) Splint the leg in the position in which it was found and transport without\ndelay.\n(D) Transport rapidly to the nearest trauma center.\n\nQuestion 3\nYour patient is a 31-year-old male who has a swollen, painful, and angulated\nright lower arm after falling from his bicycle onto his hands. Which of the\nfollowing should be considered in the immobilization of his injured extremity?\n(A) Check pulse, movement, and sensation distal to the injury before and\nafter splinting.\n(B) Immobilize from the shoulder to the wrist.\n(C) Use an upper extremity traction splint.\n(D) Do not attempt to realign the extremity before splinting",
+                "record_id": "LRC_EMT_2020:p404",
+                "score": 0.5960052,
+                "dense_score": 0.5960052,
+                "dense_rank": 2,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:IFRC_FA_2025:p302:c001:0139c06b3732",
+                "doc_id": "IFRC_FA_2025",
+                "page": "302",
+                "pdf_page": 302,
+                "section": "CAUTION",
+                "language": "en",
+                "content_type": "text",
+                "text": "CAUTION\n●​ Always wrap an icepack in a cloth to avoid damage to the skin.\n\nLocal adaptation\n●​ In remote areas where the injured person must be moved a long distance over bumpy\nterrain, protect the limb by splinting it in a way that limits pain, reduces chances for\nfurther injury and facilitates safe and quick transport.\n\nAccess help\n●​ If you are in doubt whether the injury is a fracture, sprain or strain, access medical care.\n●​ Record the time of injury, as this information can be helpful for medical professionals\nwhen comparing the injured limb to the healthy one.\n\n​\n302​ |​ International first aid, resuscitation and education guidelines 2025 ⚙️",
+                "record_id": "IFRC_FA_2025:p302",
+                "score": 0.5877667,
+                "dense_score": 0.5877667,
+                "dense_rank": 3,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:IFRC_FA_2025:p283:c001:6cf6e9ec37fe",
+                "doc_id": "IFRC_FA_2025",
+                "page": "283",
+                "pdf_page": 283,
+                "section": "Key action",
+                "language": "en",
+                "content_type": "text",
+                "text": "Guidelines\n\n●​ If a friction blister does not cause serious discomfort, the first aid provider should consider\nkeeping the blister intact. This may decrease the risk of bacteria and infection, compared\nto draining it (aspiration) or removing the top layer of the blister (deroofing).*\n\nGood practice points\n\n●​ Friction blisters can lead to an open wound, bleeding or infection, limiting a person’s\nmobility. In these situations, the person should stop the activity causing the blister, and if\npossible, cover the blister with a clean dressing. Then seek medical advice.\n●​ If a friction blister filled with fluid causes significant discomfort (e.g. it is painful to walk) or\nis at risk of self-draining, the first aider should consider draining it (except if the person\nhas a chronic disease such as diabetes). This may reduce the pain associated with the\nblister. If drained, the blister should be covered with a clean dressing to ensure the roof\nattaches to the underlying skin and that the blister does not refill with fluid and to avoid\ninfection\n●​ A small (up to two cm) friction blister can be punctured by a first aid provider, preferably\nafter cleaning the surface of the blister. Large friction blisters should be treated by a\nmedical professional.\n●​ Materials like moleskin or commercial hydrocolloid blister-plasters may be applied to\nminimize additional trauma to the blister and to relieve discomfort.\n●​ If the person must walk to access help, avoid using a very sticky dressing, such as a\ncommercial hydrocolloid blister-plaster, as these are difficult to remove from the skin.\nRemoving the blister-plaster repeatedly can cause further damage. Walking for extended\nperiods also may allow bacteria to get under the blister bandage, increasing the risk of\ninfection.\n●​ Treat an open friction blister as a cut or graze.\n\n​\nFIRST AID​ |​ 283",
+                "record_id": "IFRC_FA_2025:p283",
+                "score": 0.58307457,
+                "dense_score": 0.58307457,
+                "dense_rank": 4,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:SJA_REFERENCE:p217:c000:3a9f86ae160a",
+                "doc_id": "SJA_REFERENCE",
+                "page": "217",
+                "pdf_page": 217,
+                "section": "Bone, joint, and muscle injuries",
+                "language": "en",
+                "content_type": "text+vision",
+                "text": "Bone, joint, and muscle injuries\n\nProviding first aid if you DO NOT have splints\nIf you do not have splints, perform the following steps:\n\n1. Use the uninjured leg as an anatomical splint by tying the\nlegs together.\n\n2. Position padding between the legs (e.g. a rolled-up\nblanket).\n\n3. Position and tie broad bandages at the thighs, knees,\nabove the injury, below the injury, and at the ankles. Tie a\nfigure 8 at the ankles.\n\n4. Tie knots on the padding for comfort.\n09First aid for an injured ankle\nThe ankle should be immobilized whenever you suspect a\nsprain or a fracture. If the injury does not seem serious, or\nif the journey to medical help will be smooth, use a blanket\nsplint or pillow splint to immobilize the ankle:\n\n1. Check circulation below the injury.\n\n2. Loosen footwear and immobilize the ankle with a pillow\nor rolled-up blanket and two broad bandages. Make sure\nthe splint extends beyond the ankle.\n\n217\n\n[Validated visual supplement | visual_id=SJA_REFERENCE:p217:page-render | authority=human_validated_supplement]\nVisual type: instructional_diagram\nVisual description: A diagram illustrating first aid procedures for bone, joint, and muscle injuries when splints are unavailable.\nVisible labels: Bone, joint, and muscle injuries; Providing first aid if you DO NOT have splints; First aid for an injured ankle\nVisually demonstrated actions: Use the uninjured leg as an anatomical splint by tying the legs together; Position padding between the legs (e.g. a rolled-up blanket); Position and tie broad bandages at the thighs, knees, above the injury, below the injury, and at the ankles. Tie a figure 8 at the ankles.; Tie knots on the padding for comfort\nVisually ordered steps: Use uninjured leg as splint; Position padding between legs; Apply bandages to thighs, knees, above and below injury, and ankles; Secure with figure 8 at ankles; Tie knots for comfort",
+                "record_id": "SJA_REFERENCE:p217",
+                "score": 0.58090913,
+                "dense_score": 0.58090913,
+                "dense_rank": 5,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:LRC_EMT_2020:p389:c001:c1b8182849ae",
+                "doc_id": "LRC_EMT_2020",
+                "page": "385",
+                "pdf_page": 389,
+                "section": "Classification of fractures",
+                "language": "en",
+                "content_type": "text+vision",
+                "text": "• Closed fracture: The skin overlying the injury is not broken. Closed fractures\nare further classified as displaced or nondisplaced\no Nondisplaced fracture: A simple crack of the bone that may be\ndifficult to distinguish from a sprain or simple contusion\n\nPAGE 385 © Lebanese Red Cross 2020\n\n[Validated visual supplement | visual_id=LRC_EMT_2020:p389:page-render | authority=human_validated_supplement]\nVisual type: instructional_diagram\nVisual description: The page provides an instructional diagram illustrating mechanisms of injury associated with skeletal trauma, including direct blows, indirect forces, twisting forces, and high-energy injuries.\nVisible labels: Direct blow; Indirect force; Twisting forces; High-energy injury\nVisually demonstrated actions: A person receiving a direct blow to the knee; A person experiencing an indirect force on their arm during a fall; A skier falling and applying twisting force to their lower extremity; An individual in a car crash with visible skeletal injuries",
+                "record_id": "LRC_EMT_2020:p389",
+                "score": 0.5804948,
+                "dense_score": 0.5804948,
+                "dense_rank": 6,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:LRC_EMT_2020:p404:c001:9655cd3527a0",
+                "doc_id": "LRC_EMT_2020",
+                "page": "400",
+                "pdf_page": 404,
+                "section": "MCQ Practice Questions:",
+                "language": "en",
+                "content_type": "text",
+                "text": "Question 3\nYour patient is a 31-year-old male who has a swollen, painful, and angulated\nright lower arm after falling from his bicycle onto his hands. Which of the\nfollowing should be considered in the immobilization of his injured extremity?\n(A) Check pulse, movement, and sensation distal to the injury before and\nafter splinting.\n(B) Immobilize from the shoulder to the wrist.\n(C) Use an upper extremity traction splint.\n(D) Do not attempt to realign the extremity before splinting\n\nQuestion 4\nYou respond to a patient who fell while riding his scooter. Your assessment\nreveals the following signs: Alert to verbal stimuli, tachypneic at a rate of 25\nbreaths per minute, weak radial pulse at a rate of 110 beats per minute, moist\nskin and capillary refill time more than 2 seconds, GCS=13. He is complaining\nof fractures in the tibia in both lower legs. You highly suspect that your patient\nis in shock. Which of the following justifies the appearance of the signs of\nshock?\n(A) Internal Bleeding in the abdomen\n(B) Psychogenic shock as a result of pain\n(C) Complication of the fractures\n(D) All of the above\n\nPAGE 400",
+                "record_id": "LRC_EMT_2020:p404",
+                "score": 0.58046174,
+                "dense_score": 0.58046174,
+                "dense_rank": 7,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              },
+              {
+                "chunk_id": "structure_aware:IFRC_FA_2025:p307:c001:2a0da368601d",
+                "doc_id": "IFRC_FA_2025",
+                "page": "307",
+                "pdf_page": 307,
+                "section": "Good practice points",
+                "language": "en",
+                "content_type": "text",
+                "text": "●​ The person may have a suspected spinal injury if they have been involved in a traumatic\nincident, such as being the driver, passenger or pedestrian in a motor vehicle or bicycle\ncollision, or they have fallen from a height greater than standing.\n●​ A person experiencing the following signs or symptoms following a traumatic incident\nmay have a spinal injury:\n○​ tingling sensation in the extremities or other parts of the body\n○​ pain or tenderness in the neck or back\n○​ an obvious deformity to the head, neck or spine\n○​ other painful injuries, especially at the head or neck\n○​ Loss of sensation or weakness in the torso or arms.\n●​ First aid providers should always access emergency medical services (EMS) when\nsuspecting a spinal injury.\n●​ A person with a suspected spinal injury who is alert and awake should keep as still as\npossible and may not require manual stabilization.\n●​ A person with a suspected spinal injury who is not sufficiently alert or awake may benefit\nfrom gentle support of the head (manual stabilization) to prevent inadvertent movement.\nFirst aid providers should not strap the person’s head or neck.\n●​ A person with a suspected spinal injury who is unresponsive but breathing normally\nshould only be moved once EMS arrives or if they are in harm’s way. The first aid provider\nshould open the person’s airway and monitor their breathing.\n●​ In cases of suspected spinal injury, a head injury should also be considered.\n\n​\nFIRST AID​ |​ 307",
+                "record_id": "IFRC_FA_2025:p307",
+                "score": 0.5770658,
+                "dense_score": 0.5770658,
+                "dense_rank": 8,
+                "retrieval_method": "dense",
+                "retrieval_methods": [
+                  "dense"
+                ]
+              }
+            ]
+          },
+          "generation": {
+            "status": "answered",
+            "answer": "She should not walk on it [S1].",
+            "citations": [
+              {
+                "label": "S1",
+                "chunk_id": "structure_aware:IFRC_FA_2025:p306:c000:aa0a7105795d",
+                "doc_id": "IFRC_FA_2025",
+                "page": "306",
+                "pdf_page": 306,
+                "section": "Evidence gaps",
+                "content_type": "text"
+              }
+            ],
+            "citation_labels": [
+              "S1"
+            ],
+            "abstention_category": null,
+            "insufficient_evidence_reason": "",
+            "language": "en",
+            "model": "qwen3:4b",
+            "provider": "ollama",
+            "prompt_version": "first-aid-grounded-generation-v1",
+            "validation_attempts": 1,
+            "retrieval_route": "english_dense_top8"
+          }
+        },
+        "ok": true
+      }
+    ],
+    "retrieval": {
+      "route": "english_dense_top8",
+      "language": "en",
+      "translation": {
+        "enabled": true,
+        "attempted": false,
+        "succeeded": false,
+        "provider": "openrouter_then_groq_then_ollama",
+        "model": "qwen/qwen3.5-flash-02-23|qwen/qwen3.6-27b|qwen3:4b",
+        "translated_query": null,
+        "error": null
+      },
+      "result_count": 8,
+      "doc_id_filter": null,
+      "results": [
+        {
+          "chunk_id": "structure_aware:IFRC_FA_2025:p306:c000:aa0a7105795d",
+          "doc_id": "IFRC_FA_2025",
+          "page": "306",
+          "pdf_page": 306,
+          "section": "Evidence gaps",
+          "language": "en",
+          "content_type": "text",
+          "text": "ankle range of motion, and time to return to work or normal walking, stair climbing and full\nweight-bearing.\n\nFor the important outcome of recovery time (measured by return to sports), very low-certainty\nevidence from one randomized trial enrolling 117 adults with ankle sprains was identified,\nshowing benefit from the use of a compression bandage when compared with the use of\nnon-compressive stockings.\n\nTherefore, if the person with an ankle strain wants a compression dressing, this is acceptable as\nthere is no evidence of harm caused by the dressing.\n\nEvidence gaps\nMore research is needed on the optimal frequency, duration and initial timing of ice or cooling\ntreatments after an acute injury, as sources are inconsistent in their recommendations.\n\n​\n306​ |​ International first aid, resuscitation and education guidelines 2025 ⚙️",
+          "record_id": "IFRC_FA_2025:p306",
+          "score": 0.6168978,
+          "dense_score": 0.6168978,
+          "dense_rank": 1,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:LRC_EMT_2020:p404:c000:3c643c74a419",
+          "doc_id": "LRC_EMT_2020",
+          "page": "400",
+          "pdf_page": 404,
+          "section": "Trauma Emergencies",
+          "language": "en",
+          "content_type": "text",
+          "text": "Trauma Emergencies\n\nMCQ Practice Questions:\n\nQuestion 1\nYour patient is a 21-year-old female who fell onto her outstretched hands while\nrollerblading. She has a deformity of her forearm, about 5 cm proximal to her\nwrist. This injury is a result of which of the following mechanisms?\n(A) Direct force\n(B) Indirect force\n(C) Sudden acceleration\n(D) Twisting motion\n\nQuestion 2\nYour patient is a 37-year-old man who tripped while walking down a hill and\nnow has a painful, deformed right leg. The patient is alert and oriented with an\nisolated injury in the right leg. Your assessment reveals that the foot is cold and\nmottled in appearance. You cannot detect a pulse in the foot or ankle. Which\nof the following is the next step in your course of action?\n(A) Fully immobilize the patient into a long spine board\n(B) Gently attempt to straighten the leg to regain a pulse before splinting.\n(C) Splint the leg in the position in which it was found and transport without\ndelay.\n(D) Transport rapidly to the nearest trauma center.\n\nQuestion 3\nYour patient is a 31-year-old male who has a swollen, painful, and angulated\nright lower arm after falling from his bicycle onto his hands. Which of the\nfollowing should be considered in the immobilization of his injured extremity?\n(A) Check pulse, movement, and sensation distal to the injury before and\nafter splinting.\n(B) Immobilize from the shoulder to the wrist.\n(C) Use an upper extremity traction splint.\n(D) Do not attempt to realign the extremity before splinting",
+          "record_id": "LRC_EMT_2020:p404",
+          "score": 0.5960052,
+          "dense_score": 0.5960052,
+          "dense_rank": 2,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:IFRC_FA_2025:p302:c001:0139c06b3732",
+          "doc_id": "IFRC_FA_2025",
+          "page": "302",
+          "pdf_page": 302,
+          "section": "CAUTION",
+          "language": "en",
+          "content_type": "text",
+          "text": "CAUTION\n●​ Always wrap an icepack in a cloth to avoid damage to the skin.\n\nLocal adaptation\n●​ In remote areas where the injured person must be moved a long distance over bumpy\nterrain, protect the limb by splinting it in a way that limits pain, reduces chances for\nfurther injury and facilitates safe and quick transport.\n\nAccess help\n●​ If you are in doubt whether the injury is a fracture, sprain or strain, access medical care.\n●​ Record the time of injury, as this information can be helpful for medical professionals\nwhen comparing the injured limb to the healthy one.\n\n​\n302​ |​ International first aid, resuscitation and education guidelines 2025 ⚙️",
+          "record_id": "IFRC_FA_2025:p302",
+          "score": 0.5877667,
+          "dense_score": 0.5877667,
+          "dense_rank": 3,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:IFRC_FA_2025:p283:c001:6cf6e9ec37fe",
+          "doc_id": "IFRC_FA_2025",
+          "page": "283",
+          "pdf_page": 283,
+          "section": "Key action",
+          "language": "en",
+          "content_type": "text",
+          "text": "Guidelines\n\n●​ If a friction blister does not cause serious discomfort, the first aid provider should consider\nkeeping the blister intact. This may decrease the risk of bacteria and infection, compared\nto draining it (aspiration) or removing the top layer of the blister (deroofing).*\n\nGood practice points\n\n●​ Friction blisters can lead to an open wound, bleeding or infection, limiting a person’s\nmobility. In these situations, the person should stop the activity causing the blister, and if\npossible, cover the blister with a clean dressing. Then seek medical advice.\n●​ If a friction blister filled with fluid causes significant discomfort (e.g. it is painful to walk) or\nis at risk of self-draining, the first aider should consider draining it (except if the person\nhas a chronic disease such as diabetes). This may reduce the pain associated with the\nblister. If drained, the blister should be covered with a clean dressing to ensure the roof\nattaches to the underlying skin and that the blister does not refill with fluid and to avoid\ninfection\n●​ A small (up to two cm) friction blister can be punctured by a first aid provider, preferably\nafter cleaning the surface of the blister. Large friction blisters should be treated by a\nmedical professional.\n●​ Materials like moleskin or commercial hydrocolloid blister-plasters may be applied to\nminimize additional trauma to the blister and to relieve discomfort.\n●​ If the person must walk to access help, avoid using a very sticky dressing, such as a\ncommercial hydrocolloid blister-plaster, as these are difficult to remove from the skin.\nRemoving the blister-plaster repeatedly can cause further damage. Walking for extended\nperiods also may allow bacteria to get under the blister bandage, increasing the risk of\ninfection.\n●​ Treat an open friction blister as a cut or graze.\n\n​\nFIRST AID​ |​ 283",
+          "record_id": "IFRC_FA_2025:p283",
+          "score": 0.58307457,
+          "dense_score": 0.58307457,
+          "dense_rank": 4,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:SJA_REFERENCE:p217:c000:3a9f86ae160a",
+          "doc_id": "SJA_REFERENCE",
+          "page": "217",
+          "pdf_page": 217,
+          "section": "Bone, joint, and muscle injuries",
+          "language": "en",
+          "content_type": "text+vision",
+          "text": "Bone, joint, and muscle injuries\n\nProviding first aid if you DO NOT have splints\nIf you do not have splints, perform the following steps:\n\n1. Use the uninjured leg as an anatomical splint by tying the\nlegs together.\n\n2. Position padding between the legs (e.g. a rolled-up\nblanket).\n\n3. Position and tie broad bandages at the thighs, knees,\nabove the injury, below the injury, and at the ankles. Tie a\nfigure 8 at the ankles.\n\n4. Tie knots on the padding for comfort.\n09First aid for an injured ankle\nThe ankle should be immobilized whenever you suspect a\nsprain or a fracture. If the injury does not seem serious, or\nif the journey to medical help will be smooth, use a blanket\nsplint or pillow splint to immobilize the ankle:\n\n1. Check circulation below the injury.\n\n2. Loosen footwear and immobilize the ankle with a pillow\nor rolled-up blanket and two broad bandages. Make sure\nthe splint extends beyond the ankle.\n\n217\n\n[Validated visual supplement | visual_id=SJA_REFERENCE:p217:page-render | authority=human_validated_supplement]\nVisual type: instructional_diagram\nVisual description: A diagram illustrating first aid procedures for bone, joint, and muscle injuries when splints are unavailable.\nVisible labels: Bone, joint, and muscle injuries; Providing first aid if you DO NOT have splints; First aid for an injured ankle\nVisually demonstrated actions: Use the uninjured leg as an anatomical splint by tying the legs together; Position padding between the legs (e.g. a rolled-up blanket); Position and tie broad bandages at the thighs, knees, above the injury, below the injury, and at the ankles. Tie a figure 8 at the ankles.; Tie knots on the padding for comfort\nVisually ordered steps: Use uninjured leg as splint; Position padding between legs; Apply bandages to thighs, knees, above and below injury, and ankles; Secure with figure 8 at ankles; Tie knots for comfort",
+          "record_id": "SJA_REFERENCE:p217",
+          "score": 0.58090913,
+          "dense_score": 0.58090913,
+          "dense_rank": 5,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:LRC_EMT_2020:p389:c001:c1b8182849ae",
+          "doc_id": "LRC_EMT_2020",
+          "page": "385",
+          "pdf_page": 389,
+          "section": "Classification of fractures",
+          "language": "en",
+          "content_type": "text+vision",
+          "text": "• Closed fracture: The skin overlying the injury is not broken. Closed fractures\nare further classified as displaced or nondisplaced\no Nondisplaced fracture: A simple crack of the bone that may be\ndifficult to distinguish from a sprain or simple contusion\n\nPAGE 385 © Lebanese Red Cross 2020\n\n[Validated visual supplement | visual_id=LRC_EMT_2020:p389:page-render | authority=human_validated_supplement]\nVisual type: instructional_diagram\nVisual description: The page provides an instructional diagram illustrating mechanisms of injury associated with skeletal trauma, including direct blows, indirect forces, twisting forces, and high-energy injuries.\nVisible labels: Direct blow; Indirect force; Twisting forces; High-energy injury\nVisually demonstrated actions: A person receiving a direct blow to the knee; A person experiencing an indirect force on their arm during a fall; A skier falling and applying twisting force to their lower extremity; An individual in a car crash with visible skeletal injuries",
+          "record_id": "LRC_EMT_2020:p389",
+          "score": 0.5804948,
+          "dense_score": 0.5804948,
+          "dense_rank": 6,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:LRC_EMT_2020:p404:c001:9655cd3527a0",
+          "doc_id": "LRC_EMT_2020",
+          "page": "400",
+          "pdf_page": 404,
+          "section": "MCQ Practice Questions:",
+          "language": "en",
+          "content_type": "text",
+          "text": "Question 3\nYour patient is a 31-year-old male who has a swollen, painful, and angulated\nright lower arm after falling from his bicycle onto his hands. Which of the\nfollowing should be considered in the immobilization of his injured extremity?\n(A) Check pulse, movement, and sensation distal to the injury before and\nafter splinting.\n(B) Immobilize from the shoulder to the wrist.\n(C) Use an upper extremity traction splint.\n(D) Do not attempt to realign the extremity before splinting\n\nQuestion 4\nYou respond to a patient who fell while riding his scooter. Your assessment\nreveals the following signs: Alert to verbal stimuli, tachypneic at a rate of 25\nbreaths per minute, weak radial pulse at a rate of 110 beats per minute, moist\nskin and capillary refill time more than 2 seconds, GCS=13. He is complaining\nof fractures in the tibia in both lower legs. You highly suspect that your patient\nis in shock. Which of the following justifies the appearance of the signs of\nshock?\n(A) Internal Bleeding in the abdomen\n(B) Psychogenic shock as a result of pain\n(C) Complication of the fractures\n(D) All of the above\n\nPAGE 400",
+          "record_id": "LRC_EMT_2020:p404",
+          "score": 0.58046174,
+          "dense_score": 0.58046174,
+          "dense_rank": 7,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        },
+        {
+          "chunk_id": "structure_aware:IFRC_FA_2025:p307:c001:2a0da368601d",
+          "doc_id": "IFRC_FA_2025",
+          "page": "307",
+          "pdf_page": 307,
+          "section": "Good practice points",
+          "language": "en",
+          "content_type": "text",
+          "text": "●​ The person may have a suspected spinal injury if they have been involved in a traumatic\nincident, such as being the driver, passenger or pedestrian in a motor vehicle or bicycle\ncollision, or they have fallen from a height greater than standing.\n●​ A person experiencing the following signs or symptoms following a traumatic incident\nmay have a spinal injury:\n○​ tingling sensation in the extremities or other parts of the body\n○​ pain or tenderness in the neck or back\n○​ an obvious deformity to the head, neck or spine\n○​ other painful injuries, especially at the head or neck\n○​ Loss of sensation or weakness in the torso or arms.\n●​ First aid providers should always access emergency medical services (EMS) when\nsuspecting a spinal injury.\n●​ A person with a suspected spinal injury who is alert and awake should keep as still as\npossible and may not require manual stabilization.\n●​ A person with a suspected spinal injury who is not sufficiently alert or awake may benefit\nfrom gentle support of the head (manual stabilization) to prevent inadvertent movement.\nFirst aid providers should not strap the person’s head or neck.\n●​ A person with a suspected spinal injury who is unresponsive but breathing normally\nshould only be moved once EMS arrives or if they are in harm’s way. The first aid provider\nshould open the person’s airway and monitor their breathing.\n●​ In cases of suspected spinal injury, a head injury should also be considered.\n\n​\nFIRST AID​ |​ 307",
+          "record_id": "IFRC_FA_2025:p307",
+          "score": 0.5770658,
+          "dense_score": 0.5770658,
+          "dense_rank": 8,
+          "retrieval_method": "dense",
+          "retrieval_methods": [
+            "dense"
+          ]
+        }
+      ]
+    },
+    "generation": {
+      "status": "answered",
+      "answer": "She should not walk on it [S1].",
+      "citations": [
+        {
+          "label": "S1",
+          "chunk_id": "structure_aware:IFRC_FA_2025:p306:c000:aa0a7105795d",
+          "doc_id": "IFRC_FA_2025",
+          "page": "306",
+          "pdf_page": 306,
+          "section": "Evidence gaps",
+          "content_type": "text"
+        }
+      ],
+      "citation_labels": [
+        "S1"
+      ],
+      "abstention_category": null,
+      "insufficient_evidence_reason": "",
+      "language": "en",
+      "model": "qwen3:4b",
+      "provider": "ollama",
+      "prompt_version": "first-aid-grounded-generation-v1",
+      "validation_attempts": 1,
+      "retrieval_route": "english_dense_top8",
+      "agent_route": [
+        "rag"
+      ]
+    },
+    "answer_agent": {
+      "used": false,
+      "mode": "rag_passthrough",
+      "valid": true
+    },
+    "orchestration": {
+      "supervisor_provider": "groq",
+      "supervisor_model": "openai/gpt-oss-120b",
+      "supervisor_latency_ms": 821.006,
+      "selected_routes": [
+        "rag"
+      ],
+      "input_guard": "allowed",
+      "router_errors": [],
+      "specialist_failures": [],
+      "specialist_diagnostics": [],
+      "answer_mode": "rag_passthrough",
+      "answer_attempts": 0,
+      "output_guard": "passed",
+      "output_guard_errors": [],
+      "trajectory": [
+        "input_guard",
+        "supervisor",
+        "rag_agent",
+        "answer_agent",
+        "output_guard"
+      ],
+      "node_trace": [
+        {
+          "node": "input_guard",
+          "latency_ms": 0.044
+        },
+        {
+          "node": "supervisor",
+          "latency_ms": 821.029
+        },
+        {
+          "node": "rag_agent",
+          "latency_ms": 4178.066
+        },
+        {
+          "node": "answer_agent",
+          "latency_ms": 0.015
+        },
+        {
+          "node": "output_guard",
+          "latency_ms": 0.026
+        }
+      ],
+      "node_steps": 5,
+      "tool_trace": [
+        {
+          "tool": "retrieve_first_aid_evidence",
+          "arguments": {
+            "question": "Should she try to walk on it?",
+            "tool_question": "Should she try to walk on it?",
+            "retrieval_query": "Previous user context: My sister slipped on the stairs and twisted her ankle. It's swollen and painful but no open wound.\nFollow-up question: Should she try to walk on it?"
+          },
+          "success": true
+        }
+      ],
+      "tool_calls": 1,
+      "usage": {
+        "models": {
+          "openai/gpt-oss-120b": {
+            "input_tokens": 851,
+            "output_tokens": 209,
+            "provider": "groq",
+            "model_calls": 0,
+            "total_tokens": 1060,
+            "estimated_cost_usd": 0.00025305
+          }
+        },
+        "input_tokens": 851,
+        "output_tokens": 209,
+        "total_tokens": 1060,
+        "model_calls": 1,
+        "estimated_cost_usd": 0.00025305,
+        "unknown_pricing_models": [],
+        "pricing_basis": "Groq on-demand USD per 1M tokens; local Ollama API cost is $0"
+      }
+    },
+    "visuals": [],
+    "appointment": null
+  }
+}

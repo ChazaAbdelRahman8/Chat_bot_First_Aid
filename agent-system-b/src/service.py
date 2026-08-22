@@ -30,6 +30,31 @@ IN_PERSON_MODE = re.compile(
 )
 
 
+def _selection_index(query: str) -> int | None:
+    """Return a zero-based match selection without misreading other numbers.
+
+    Bare digits are accepted only when the complete reply is a selection phrase,
+    so values in requests such as ``in 10 minutes`` or ``under $50`` cannot
+    accidentally book a provider.
+    """
+    normalized = " ".join(query.lower().strip().rstrip(".!?,;:").split())
+    numeric = re.fullmatch(
+        r"(?:(?:book|select|choose|confirm)\s+)?"
+        r"(?:(?:the\s+)?(?:option|number)\s+)?#?([1-3])",
+        normalized,
+    )
+    if numeric:
+        return int(numeric.group(1)) - 1
+    return next(
+        (
+            value
+            for token, value in ORDINALS.items()
+            if re.search(rf"\b{re.escape(token)}\b", normalized)
+        ),
+        None,
+    )
+
+
 def synthetic_profiles(now: datetime | None = None) -> list[dict[str, Any]]:
     now = now or utcnow()
     soon = (now + timedelta(minutes=6)).replace(second=0, microsecond=0)
@@ -82,9 +107,9 @@ class AppointmentService:
                 )
             self.store.save_request(request_id, result)
             return result
-        lower = query.lower()
-        selects_previous_match = bool(state.get("last_matches")) and any(
-            token in lower for token in ORDINALS
+        selects_previous_match = (
+            bool(state.get("last_matches"))
+            and _selection_index(query) is not None
         )
         if BOOK.search(query) or selects_previous_match:
             result = self._book(query, conversation_id, request_id, state, preferences)
@@ -205,7 +230,7 @@ class AppointmentService:
         if not matches:
             return self._result(request_id, conversation_id, "needs_information", "I need to search for matching synthetic psychologists before booking.", missing_fields=["psychologist_selection"])
         lower = query.lower()
-        index = next((value for token, value in ORDINALS.items() if token in lower), None)
+        index = _selection_index(query)
         if index is None:
             selected_id = next((row["psychologist_id"] for row in matches if row["psychologist_id"].lower() in lower), None)
             index = next((i for i, row in enumerate(matches) if row["psychologist_id"] == selected_id), None)

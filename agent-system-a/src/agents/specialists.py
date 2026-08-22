@@ -24,7 +24,7 @@ from .prompts import (
     VISUAL_PROMPT,
     WEB_PROMPT,
 )
-from .visual_tool import inspect_with_ollama
+from .visual_tool import inspect_uploaded_image
 from system_limits import (
     IMAGE_INSPECTION_MAX_CALLS,
     MANUAL_VISUAL_AGENT_RECURSION_LIMIT,
@@ -90,6 +90,14 @@ class RagReActAgent:
     def run(
         self, question: str, *, fallback_retrieval_query: str | None = None,
     ) -> tuple[str, dict[str, Any]]:
+        user_question = question
+        # Despite the legacy parameter name, this is now the primary retrieval
+        # query. The original question remains the generation/language contract.
+        retrieval_query = (
+            fallback_retrieval_query.strip()
+            if fallback_retrieval_query and fallback_retrieval_query.strip()
+            else question
+        )
         captured: list[dict[str, Any]] = []
         tool_calls = 0
 
@@ -101,15 +109,28 @@ class RagReActAgent:
                 raise RuntimeError("RAG retrieval tool-call limit reached")
             tool_calls += 1
             try:
-                result = self.runtime.answer(question)
+                result = self.runtime.answer(
+                    user_question,
+                    retrieval_query=(
+                        retrieval_query if retrieval_query != user_question else None
+                    ),
+                )
             except Exception as exc:
                 record_tool(
-                    "retrieve_first_aid_evidence", {"question": question},
+                    "retrieve_first_aid_evidence", {
+                        "question": user_question,
+                        "tool_question": question,
+                        "retrieval_query": retrieval_query,
+                    },
                     success=False, error=f"{type(exc).__name__}: {exc}",
                 )
                 raise
             record_tool(
-                "retrieve_first_aid_evidence", {"question": question}, success=True,
+                "retrieve_first_aid_evidence", {
+                    "question": user_question,
+                    "tool_question": question,
+                    "retrieval_query": retrieval_query,
+                }, success=True,
             )
             captured.append(result)
             generation = result["generation"]
@@ -151,20 +172,6 @@ class RagReActAgent:
             # a RAG branch into ungrounded model prose.
             retrieve_first_aid_evidence.invoke({"question": question})
         payload = captured[-1] if captured else {}
-        generation = payload.get("generation", {})
-        if (
-            generation.get("status") != "answered"
-            and fallback_retrieval_query
-            and fallback_retrieval_query.strip() != question.strip()
-        ):
-            # Keep generation in the user's original language, but retry
-            # retrieval with the supervisor's concise medical rewrite. This is
-            # especially useful for genuinely code-switched input.
-            retry = self.runtime.answer(
-                question, retrieval_query=fallback_retrieval_query,
-            )
-            if retry.get("generation", {}).get("status") == "answered":
-                payload = retry
         if not output:
             output = str(payload.get("generation", {}).get("answer", ""))
         return output, payload
@@ -329,6 +336,11 @@ class VisualReActAgent:
         self, image_path: Path, *, model: str, agent_model: str, ollama_url: str,
         agent_provider: str = "ollama", groq_api_key: str | None = None,
         agent_timeout: float = 60, agent_fallback_model: str | None = None,
+        vision_provider: str = "ollama",
+        vision_fallback_model: str = "qwen2.5vl:7b",
+        openrouter_api_key: str | None = None,
+        openrouter_url: str = "https://openrouter.ai/api/v1",
+        vision_timeout: int = 30,
     ) -> None:
         tool_calls = 0
 
@@ -340,17 +352,34 @@ class VisualReActAgent:
                 raise RuntimeError("image-inspection tool-call limit reached")
             tool_calls += 1
             try:
-                result = inspect_with_ollama(
-                    image_path, question, model=model, base_url=ollama_url,
+                result = inspect_uploaded_image(
+                    image_path,
+                    question,
+                    provider=vision_provider,
+                    model=model,
+                    ollama_url=ollama_url,
+                    fallback_model=vision_fallback_model,
+                    openrouter_api_key=openrouter_api_key,
+                    openrouter_url=openrouter_url,
+                    timeout=vision_timeout,
                 )
             except Exception as exc:
                 record_tool(
-                    "inspect_image", {"question": question, "image_attached": True},
+                    "inspect_image", {
+                        "question": question,
+                        "image_attached": True,
+                        "provider": vision_provider,
+                    },
                     success=False, error=f"{type(exc).__name__}: {exc}",
                 )
                 raise
             record_tool(
-                "inspect_image", {"question": question, "image_attached": True},
+                "inspect_image", {
+                    "question": question,
+                    "image_attached": True,
+                    "provider": result.get("analysis_provider", vision_provider),
+                    "provider_fallback": result.get("provider_fallback", False),
+                },
                 success=True,
             )
             return json.dumps(result, ensure_ascii=False)

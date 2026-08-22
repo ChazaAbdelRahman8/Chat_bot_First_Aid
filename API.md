@@ -9,7 +9,7 @@ $env:PYTHONPATH="agent-system-a\src"
 uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
-Qdrant must be running on `http://localhost:6333`, and Ollama must expose `qwen3:4b`. PDF visual ingestion additionally uses `qwen2.5vl:7b` when `INGEST_VISION=true`.
+Qdrant must be running on `http://localhost:6333`, and Ollama must expose `qwen3:4b`. PDF visual ingestion additionally uses local `qwen2.5vl:7b` when `INGEST_VISION=true`. User-uploaded image analysis can use OpenRouter through `UPLOAD_VISION_PROVIDER=auto` and `OPENROUTER_API_KEY`, with local `qwen2.5vl:7b` fallback.
 
 Interactive documentation is available at:
 

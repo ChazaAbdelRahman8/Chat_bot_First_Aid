@@ -62,8 +62,8 @@ Desktop.ini
 /agent-system-a/tests/test_evaluation.py
 /agent-system-a/tests/test_retrieval_golden_builder.py
 /EVALUATION.md
-/*_EVALUATION.md
-/RETRIEVAL_V2_EVALUATION.md
+
+
 
 # Local Agent A development utilities are retained on this machine but are
 # not part of the presentation repository.
